@@ -1,14 +1,30 @@
 var express = require('express');
+const passport = require('./passport');  
+const session = require('express-session');
 require('dotenv').config();
 var mongoose = require('mongoose');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var app = express();
+
+app.use(
+  session({
+    secret: 'gabgab',  
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-var app = express();
+// const port = process.env.PORT || 3000;
+// const port = 3008;
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -23,9 +39,9 @@ mongoose.connect(process.env.DB_URI, {
     .then(() => console.log('Now connected to MongoDB Atlas'))
     .catch(err => console.error('MongoDB connection error:', err));
   
-  app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
-  });
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

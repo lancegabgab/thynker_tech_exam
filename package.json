@@ -16,6 +16,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "morgan": "~1.9.1",
-    "oauth": "^0.10.0"
+    "oauth": "^0.10.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
   }
 }
