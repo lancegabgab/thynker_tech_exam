@@ -1,5 +1,6 @@
 const User = require("../models/users");
 const bcrypt = require("bcrypt");
+const { createAccessToken } = require("../auth"); 
 
 module.exports.registerUser = async (req, res) => {
   try {
@@ -33,37 +34,35 @@ module.exports.registerUser = async (req, res) => {
   }
 };
 
-module.exports.loginUser = (req,res) => {
-
-    return User.findOne ({email: req.body.email})
+module.exports.loginUser = (req, res) => {
+  return User.findOne({ email: req.body.email })
     .then((result) => {
-        if(result == null) {
-            return res.status(404).send({ error: "No Email Found" });
+      if (result == null) {
+        return res.status(404).send({ error: "No Email Found" });
+      } else {
+        const isPasswordCorrect = bcrypt.compareSync(req.body.password, result.password);
+
+        if (isPasswordCorrect) {
+          const accessToken = createAccessToken(result); 
+          return res.status(200).send({ access: accessToken });
+        } else {
+          return res.status(401).send({ message: "Email and password do not match" });
         }
-        else {
-            const isPasswordCorrect = bcrypt.compareSync(req.body.password, result.password);
-
-            if (isPasswordCorrect == true) {
-                    return res.status(200).send({ access : auth.createAccessToken(result)})
-                } else {
-                    return res.status(401).send({ message: "Email and password do not match" })
-                }
-        }
+      }
     })
-            .catch(err => {
-             console.error("Error in logging in", err)
-             return res.status(500).send({error: 'Cannot log in.'});
-        })
-}
+    .catch((err) => {
+      console.error("Error in logging in", err);
+      return res.status(500).send({ error: "Cannot log in." });
+    });
+};
 
-module.exports.getAllUsers = (req,res) => {
-    return User.find ({})
-    .then (result => {
-        res.status(200).send({result})
+module.exports.getAllUsers = (req, res) => {
+  return User.find({})
+    .then((result) => {
+      res.status(200).send({ result });
     })
-    .catch(err => {
-             console.error("Error in getting all info", err)
-             return res.status(500).send({error: 'Failed to get details of user.'});
-    })
-
-}
+    .catch((err) => {
+      console.error("Error in getting all info", err);
+      return res.status(500).send({ error: "Failed to get details of user." });
+    });
+};
