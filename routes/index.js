@@ -1,9 +1,13 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const passport = require('passport');
+const router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/auth/google', passport.authenticate('google', {
+  scope: ['profile', 'email']
+}));
+
+router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+  res.send('Google authentication successful');
 });
 
 module.exports = router;
